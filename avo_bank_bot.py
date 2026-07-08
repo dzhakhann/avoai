@@ -376,9 +376,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     # Захардкоженные ответы на частые вопросы (чтобы ИИ не выдумывал)
     text_lower = text.lower()
-    if any(kw in text_lower for kw in ["что означает аво", "что значит аво", "что такое аво",
-                                        "avo nima", "avo degani", "что означает avo",
-                                        "avo означает", "расшифровк", "аббревиатур"]):
+    has_avo = "аво" in text_lower or "avo" in text_lower
+    asks_meaning = any(kw in text_lower for kw in [
+        "означает", "значит", "расшифров", "аббревиатур", "nima", "degani",
+        "что такое", "что это", "откуда", "почему так назван", "название"
+    ])
+    if has_avo and asks_meaning:
         lang = "uz" if any(w in text_lower for w in ["nima", "degani", "bu"]) else "ru"
         if lang == "uz":
             await update.message.reply_text(
