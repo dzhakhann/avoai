@@ -269,7 +269,7 @@ async def ask_groq(user_id: int, user_text: str) -> str:
         model=MODEL,
         messages=messages,
         max_tokens=800,
-        temperature=0.7,
+        temperature=0.2,
     )
     reply = response.choices[0].message.content
 
@@ -372,6 +372,26 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await update.message.reply_text(
             "Savolingizni yozing! 😊\nНапишите вопрос! 😊"
         )
+        return
+
+    # Захардкоженные ответы на частые вопросы (чтобы ИИ не выдумывал)
+    text_lower = text.lower()
+    if any(kw in text_lower for kw in ["что означает аво", "что значит аво", "что такое аво",
+                                        "avo nima", "avo degani", "что означает avo",
+                                        "avo означает", "расшифровк", "аббревиатур"]):
+        lang = "uz" if any(w in text_lower for w in ["nima", "degani", "bu"]) else "ru"
+        if lang == "uz":
+            await update.message.reply_text(
+                "«AVO» — o'zbek tilidagi «havo» so'zidan olingan: yengil, hamma joyda mavjud, toza. "
+                "Xuddi havo kabi — bank ham oddiy va qulay bo'lishi kerak. 🌬️",
+                reply_markup=MAIN_KEYBOARD
+            )
+        else:
+            await update.message.reply_text(
+                "«AVO» — это сокращение от узбекского слова «havo» (воздух): невесомый, вездесущий, чистый. "
+                "Банк должен быть таким же простым и доступным, как воздух. 🌬️",
+                reply_markup=MAIN_KEYBOARD
+            )
         return
 
     await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
